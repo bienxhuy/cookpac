@@ -1,7 +1,17 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from "./entities/User";
 import dotenv from "dotenv";
+
+import { User } from "./entities/User";
+import { Recipe } from "./entities/Recipe";
+import { Category } from "./entities/Category";
+import { Area } from "./entities/Area";
+import { Vote } from "./entities/Vote";
+import { Ingredient } from "./entities/Ingredient";
+import { RecipeIngredient } from "./entities/RecipeIngredient";
+import { Step } from "./entities/Step";
+import { Attachment } from "./entities/Attachment";
+import { Notification } from "./entities/Notification";
 
 dotenv.config();
 
@@ -14,6 +24,16 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: false,
-  entities: [User],
+  entities: [
+    User, 
+    Recipe, 
+    Category, 
+    Area, 
+    Vote, 
+    Ingredient, 
+    RecipeIngredient, 
+    Step, 
+    Attachment, 
+    Notification],
   migrations: ["src/migrations/*.ts"],
 });

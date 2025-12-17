@@ -1,5 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { BaseEntity } from "./BaseEntity";
+import { ERole } from "./ERole";
+import { Recipe } from "./Recipe";
+import { Vote } from "./Vote";
+import { Notification } from "./Notification";
 
 @Entity()
 export class User extends BaseEntity {
@@ -14,4 +18,16 @@ export class User extends BaseEntity {
 
   @Column()
   password!: string;
+
+  @Column({ type: "enum", enum: ERole, default: ERole.REGULAR_USER })
+  role!: ERole;
+
+  @OneToMany(() => Recipe, recipe => recipe.user)
+  recipes!: Recipe[];
+
+  @OneToMany(() => Vote, vote => vote.user)
+  votes!: Vote[];
+
+  @OneToMany(() => Notification, notification => notification.user)
+  notifications!: Notification[];
 }

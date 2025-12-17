@@ -1,0 +1,19 @@
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
+import { Recipe } from "./Recipe";
+import { Attachment } from "./Attachment";
+
+@Entity()
+export class Step extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ type: "text" })
+  description!: string;
+
+  @ManyToOne(() => Recipe, recipe => recipe.steps)
+  recipe!: Recipe;
+
+  @OneToMany(() => Attachment, attachment => attachment.step, { cascade: true })
+  attachments!: Attachment[];
+}
