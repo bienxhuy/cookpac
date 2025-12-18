@@ -8,6 +8,9 @@ export class Attachment extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column({ unique: true })
+  publicId!: string;
+
   @Column()
   url!: string;
 
