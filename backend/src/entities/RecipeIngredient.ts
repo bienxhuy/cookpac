@@ -8,6 +8,9 @@ export class RecipeIngredient extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column()
+  order!: number;
+
   @Column({ type: "float" })
   quantity!: number;
 
