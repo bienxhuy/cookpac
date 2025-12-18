@@ -9,8 +9,7 @@ export class CategoryRepository {
     this.repository = datasource.getRepository(Category);
   }
 
-  async create(name: string): Promise<Category> {
-    const category = this.repository.create({ name, isActive: true });
+  async save(category: Category): Promise<Category> {
     return this.repository.save(category);
   }
 

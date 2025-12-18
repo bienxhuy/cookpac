@@ -9,8 +9,7 @@ export class IngredientRepository {
     this.repository = datasource.getRepository(Ingredient);
   }
 
-  async create(name: string): Promise<Ingredient> {
-    const ingredient = this.repository.create({ name });
+  async save(ingredient: Ingredient): Promise<Ingredient> {
     return this.repository.save(ingredient);
   }
 

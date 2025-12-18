@@ -10,7 +10,8 @@ export class UserService {
   }
 
   async registerUser(name: string, email: string, password: string): Promise<User> {
-    return this.userRepository.create(name, email, password);
+    const user = new User(name, email, password);
+    return this.userRepository.save(user);
   }
 
   async getUserById(id: number): Promise<User | null> {

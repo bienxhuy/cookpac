@@ -75,9 +75,7 @@ export class RecipeService {
     if (data.thumbnailImages && data.thumbnailImages.length > 0) {
       for (const buffer of data.thumbnailImages) {
         const uploadResult = await uploadImage(buffer, 'cookpac/recipes');
-        const attachment = new Attachment();
-        attachment.publicId = uploadResult.public_id;
-        attachment.url = uploadResult.secure_url;
+        const attachment = new Attachment(uploadResult.public_id, uploadResult.secure_url);
         recipe.thumbnails.push(attachment);
       }
     }
@@ -95,9 +93,7 @@ export class RecipeService {
         if (stepData.images && stepData.images.length > 0) {
           for (const buffer of stepData.images) {
             const uploadResult = await uploadImage(buffer, 'cookpac/steps');
-            const attachment = new Attachment();
-            attachment.publicId = uploadResult.public_id;
-            attachment.url = uploadResult.secure_url;
+            const attachment = new Attachment(uploadResult.public_id, uploadResult.secure_url);
             step.attachments.push(attachment);
           }
         }
@@ -208,9 +204,7 @@ export class RecipeService {
       existingRecipe.thumbnails = [];
       for (const buffer of data.thumbnailImages) {
         const uploadResult = await uploadImage(buffer, 'cookpac/recipes');
-        const attachment = new Attachment();
-        attachment.publicId = uploadResult.public_id;
-        attachment.url = uploadResult.secure_url;
+        const attachment = new Attachment(uploadResult.public_id, uploadResult.secure_url);
         existingRecipe.thumbnails.push(attachment);
       }
     }
@@ -228,9 +222,7 @@ export class RecipeService {
         if (stepData.images && stepData.images.length > 0) {
           for (const buffer of stepData.images) {
             const uploadResult = await uploadImage(buffer, 'cookpac/steps');
-            const attachment = new Attachment();
-            attachment.publicId = uploadResult.public_id;
-            attachment.url = uploadResult.secure_url;
+            const attachment = new Attachment(uploadResult.public_id, uploadResult.secure_url);
             step.attachments.push(attachment);
           }
         }

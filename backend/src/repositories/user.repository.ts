@@ -9,8 +9,7 @@ export class UserRepository {
     this.repository = datasource.getRepository(User);
   }
 
-  async create(name: string, email: string, password: string): Promise<User> {
-    const user = this.repository.create({ name, email, password });
+  async save(user: User): Promise<User> {
     return this.repository.save(user);
   }
 

@@ -14,7 +14,8 @@ export class CategoryService {
     if (existingCategory) {
       throw new Error('Category name already exists');
     }
-    return this.categoryRepository.create(name);
+    const category = new Category(name);
+    return this.categoryRepository.save(category);
   }
 
   async getCategoryById(id: number): Promise<Category | null> {

@@ -19,4 +19,14 @@ export class Step extends BaseEntity {
 
   @OneToMany(() => Attachment, attachment => attachment.step, { cascade: true })
   attachments!: Attachment[];
+
+  constructor(order?: number, description?: string, recipe?: Recipe) {
+    super();
+    if (order !== undefined && description && recipe) {
+      this.order = order;
+      this.description = description;
+      this.recipe = recipe;
+      this.attachments = [];
+    }
+  }
 }

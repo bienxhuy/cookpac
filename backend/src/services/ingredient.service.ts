@@ -14,7 +14,8 @@ export class IngredientService {
     if (existingIngredient) {
       throw new Error('Ingredient name already exists');
     }
-    return this.ingredientRepository.create(name);
+    const ingredient = new Ingredient(name);
+    return this.ingredientRepository.save(ingredient);
   }
 
   async getIngredientById(id: number): Promise<Ingredient | null> {

@@ -14,7 +14,8 @@ export class AreaService {
     if (existingArea) {
       throw new Error('Area name already exists');
     }
-    return this.areaRepository.create(name);
+    const area = new Area(name);
+    return this.areaRepository.save(area);
   }
 
   async getAreaById(id: number): Promise<Area | null> {

@@ -9,8 +9,7 @@ export class AreaRepository {
     this.repository = datasource.getRepository(Area);
   }
 
-  async create(name: string): Promise<Area> {
-    const area = this.repository.create({ name, isActive: true });
+  async save(area: Area): Promise<Area> {
     return this.repository.save(area);
   }
 
