@@ -97,6 +97,29 @@ const swaggerSpec = swaggerJSDoc({
             },
           },
         },
+        Ingredient: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1,
+            },
+            name: {
+              type: "string",
+              example: "Tomato",
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              example: "2025-12-17T10:00:00Z",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              example: "2025-12-17T10:00:00Z",
+            },
+          },
+        },
         Error: {
           type: "object",
           properties: {
