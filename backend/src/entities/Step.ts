@@ -8,6 +8,9 @@ export class Step extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column()
+  order!: number;
+
   @Column({ type: "text" })
   description!: string;
 

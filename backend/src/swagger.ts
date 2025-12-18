@@ -120,6 +120,121 @@ const swaggerSpec = swaggerJSDoc({
             },
           },
         },
+        Recipe: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1,
+            },
+            name: {
+              type: "string",
+              example: "Spaghetti Carbonara",
+            },
+            description: {
+              type: "string",
+              example: "Classic Italian pasta dish",
+            },
+            user: {
+              $ref: "#/components/schemas/User",
+            },
+            area: {
+              $ref: "#/components/schemas/Area",
+            },
+            categories: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/Category",
+              },
+            },
+            thumbnails: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "integer",
+                  },
+                  publicId: {
+                    type: "string",
+                  },
+                  url: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+            steps: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "integer",
+                  },
+                  order: {
+                    type: "integer",
+                    description: "Step order in the recipe",
+                  },
+                  description: {
+                    type: "string",
+                  },
+                  attachments: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: {
+                          type: "integer",
+                        },
+                        publicId: {
+                          type: "string",
+                        },
+                        url: {
+                          type: "string",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            recipeIngredients: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "integer",
+                  },
+                  order: {
+                    type: "integer",
+                  },
+                  quantity: {
+                    type: "number",
+                    format: "float",
+                  },
+                  unit: {
+                    type: "string",
+                  },
+                  ingredient: {
+                    $ref: "#/components/schemas/Ingredient",
+                  },
+                },
+              },
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              example: "2025-12-17T10:00:00Z",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              example: "2025-12-17T10:00:00Z",
+            },
+          },
+        },
         Error: {
           type: "object",
           properties: {

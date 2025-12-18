@@ -3,9 +3,6 @@ const cloudinary = require('cloudinary').v2;
 
 // Configure cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true
 });
 
@@ -18,7 +15,7 @@ cloudinary.config({
 export const uploadImage = async (fileBuffer: Buffer, folder?: string): Promise<any> => {
   const options: any = {
     folder: folder || 'cookpac',
-    resource_type: 'auto',
+    resource_type: 'image',
   };
 
   try {
