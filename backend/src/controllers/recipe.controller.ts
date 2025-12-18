@@ -315,4 +315,56 @@ export class RecipeController {
       }
     }
   }
+
+  // Vote for a recipe
+  // POST /recipes/:id/vote
+  async voteRecipe(req: Request, res: Response): Promise<void> {
+    try {
+      const recipeId = parseInt(req.params.id, 10);
+      const userId = 1; // Hardcoded user ID for now
+      
+      await this.recipeService.voteRecipe(recipeId, userId);
+      res.status(200).json({ status: "success", message: 'Vote added successfully' });
+    }
+    catch (error) {
+      console.error('Error voting recipe:', error);
+      if (error instanceof Error) {
+        if (error.message === 'Recipe not found') {
+          res.status(404).json({ status: "error", message: 'Recipe not found' });
+        } else if (error.message === 'User has already voted for this recipe') {
+          res.status(409).json({ status: "error", message: 'User has already voted for this recipe' });
+        } else {
+          res.status(400).json({ status: "error", message: error.message });
+        }
+      } else {
+        res.status(500).json({ status: "error", message: 'Internal server error' });
+      }
+    }
+  }
+
+  // Unvote a recipe
+  // DELETE /recipes/:id/unvote
+  async unvoteRecipe(req: Request, res: Response): Promise<void> {
+    try {
+      const recipeId = parseInt(req.params.id, 10);
+      const userId = 1; // Hardcoded user ID for now
+      
+      await this.recipeService.unvoteRecipe(recipeId, userId);
+      res.status(200).json({ status: "success", message: 'Vote removed successfully' });
+    }
+    catch (error) {
+      console.error('Error unvoting recipe:', error);
+      if (error instanceof Error) {
+        if (error.message === 'Recipe not found') {
+          res.status(404).json({ status: "error", message: 'Recipe not found' });
+        } else if (error.message === 'User has not voted for this recipe') {
+          res.status(404).json({ status: "error", message: 'User has not voted for this recipe' });
+        } else {
+          res.status(400).json({ status: "error", message: error.message });
+        }
+      } else {
+        res.status(500).json({ status: "error", message: 'Internal server error' });
+      }
+    }
+  }
 }

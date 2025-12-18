@@ -6,11 +6,13 @@ import { UserService } from '../services/user.service';
 import { AreaService } from '../services/area.service';
 import { CategoryService } from '../services/category.service';
 import { IngredientService } from '../services/ingredient.service';
+import { VoteService } from '../services/vote.service';
 import { RecipeRepository } from '../repositories/recipe.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { AreaRepository } from '../repositories/area.repository';
 import { CategoryRepository } from '../repositories/category.repository';
 import { IngredientRepository } from '../repositories/ingredient.repository';
+import { VoteRepository } from '../repositories/vote.repository';
 import { AppDataSource } from '../data-source';
 
 // Initialize repositories
@@ -19,13 +21,15 @@ const userRepository = new UserRepository(AppDataSource);
 const areaRepository = new AreaRepository(AppDataSource);
 const categoryRepository = new CategoryRepository(AppDataSource);
 const ingredientRepository = new IngredientRepository(AppDataSource);
+const voteRepository = new VoteRepository(AppDataSource);
 
 // Initialize services
 const userService = new UserService(userRepository);
 const areaService = new AreaService(areaRepository);
 const categoryService = new CategoryService(categoryRepository);
 const ingredientService = new IngredientService(ingredientRepository);
-const recipeService = new RecipeService(recipeRepository, userService, areaService, categoryService, ingredientService);
+const voteService = new VoteService(voteRepository, userService);
+const recipeService = new RecipeService(recipeRepository, userService, areaService, categoryService, ingredientService, voteService);
 
 // Initialize controller
 const recipeController = new RecipeController(recipeService);
@@ -361,95 +365,6 @@ recipeRouter.get('/:id', (req, res) => recipeController.getRecipe(req, res));
 
 /**
  * @swagger
- * /api/recipes/filter:
- *   get:
- *     summary: Filter recipes by ingredients, categories, and areas
- *     description: Returns recipes that match the filter criteria with pagination. All filters use OR logic (recipes matching at least one of the specified IDs). Provide IDs as comma-separated values.
- *     tags: [Recipes]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *         example: 1
- *       - in: query
- *         name: pageSize
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of recipes per page
- *         example: 10
- *       - in: query
- *         name: ingredientIds
- *         schema:
- *           type: string
- *         description: Comma-separated ingredient IDs. Filter recipes that use at least one of these ingredients.
- *         example: "1,2,3"
- *       - in: query
- *         name: categoryIds
- *         schema:
- *           type: string
- *         description: Comma-separated category IDs. Filter recipes that belong to at least one of these categories.
- *         example: "1,2"
- *       - in: query
- *         name: areaIds
- *         schema:
- *           type: string
- *         description: Comma-separated area IDs. Filter recipes that belong to one of these areas.
- *         example: "1"
- *     responses:
- *       200:
- *         description: Recipes filtered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: object
- *                   properties:
- *                     recipes:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Recipe'
- *                     pagination:
- *                       type: object
- *                       properties:
- *                         page:
- *                           type: integer
- *                           example: 1
- *                         pageSize:
- *                           type: integer
- *                           example: 10
- *                         total:
- *                           type: integer
- *                           description: Total number of recipes matching the filter
- *                           example: 45
- *                         totalPages:
- *                           type: integer
- *                           description: Total number of pages
- *                           example: 5
- *       400:
- *         description: Bad request - Invalid filter parameters
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-
-/**
- * @swagger
  * /api/recipes/{id}:
  *   put:
  *     summary: Update recipe by ID
@@ -601,5 +516,113 @@ recipeRouter.put('/:id', (req, res) => recipeController.updateRecipe(req, res));
  *               $ref: '#/components/schemas/Error'
  */
 recipeRouter.delete('/:id', (req, res) => recipeController.deleteRecipe(req, res));
+
+/**
+ * @swagger
+ * /api/recipes/{id}/vote:
+ *   post:
+ *     summary: Vote for a recipe
+ *     description: Adds a vote from the authenticated user (currently hardcoded as user ID 1) to the specified recipe. Users can only vote once per recipe.
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipe ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Vote added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Vote added successfully
+ *       404:
+ *         description: Recipe not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Conflict - User has already voted for this recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: User has already voted for this recipe
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+recipeRouter.post('/:id/vote', (req, res) => recipeController.voteRecipe(req, res));
+
+/**
+ * @swagger
+ * /api/recipes/{id}/unvote:
+ *   delete:
+ *     summary: Remove vote from a recipe
+ *     description: Removes the vote from the authenticated user (currently hardcoded as user ID 1) for the specified recipe. User must have previously voted for this recipe.
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipe ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Vote removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Vote removed successfully
+ *       404:
+ *         description: Recipe not found or user has not voted for this recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: error
+ *                 message:
+ *                   type: string
+ *                   example: User has not voted for this recipe
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+recipeRouter.delete('/:id/unvote', (req, res) => recipeController.unvoteRecipe(req, res));
 
 export default recipeRouter;

@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { AreaService } from './area.service';
 import { CategoryService } from './category.service';
 import { IngredientService } from './ingredient.service';
+import { VoteService } from './vote.service';
 import { Recipe } from '../entities/Recipe';
 import { Step } from '../entities/Step';
 import { RecipeIngredient } from '../entities/RecipeIngredient';
@@ -16,19 +17,22 @@ export class RecipeService {
   private areaService: AreaService;
   private categoryService: CategoryService;
   private ingredientService: IngredientService;
+  private voteService: VoteService;
 
   constructor(
     recipeRepository: RecipeRepository,
     userService: UserService,
     areaService: AreaService,
     categoryService: CategoryService,
-    ingredientService: IngredientService
+    ingredientService: IngredientService,
+    voteService: VoteService
   ) {
     this.recipeRepository = recipeRepository;
     this.userService = userService;
     this.areaService = areaService;
     this.categoryService = categoryService;
     this.ingredientService = ingredientService;
+    this.voteService = voteService;
   }
 
   async createRecipe(data: {
@@ -310,5 +314,27 @@ export class RecipeService {
       pageSize,
       totalPages,
     };
+  }
+
+  async voteRecipe(recipeId: number, userId: number): Promise<void> {
+    // Check if recipe exists
+    const recipe = await this.recipeRepository.findById(recipeId);
+    if (!recipe) {
+      throw new Error('Recipe not found');
+    }
+
+    // Delegate to vote service
+    await this.voteService.addVote(userId, recipe);
+  }
+
+  async unvoteRecipe(recipeId: number, userId: number): Promise<void> {
+    // Check if recipe exists
+    const recipe = await this.recipeRepository.findById(recipeId);
+    if (!recipe) {
+      throw new Error('Recipe not found');
+    }
+
+    // Delegate to vote service
+    await this.voteService.removeVote(userId, recipeId);
   }
 }
