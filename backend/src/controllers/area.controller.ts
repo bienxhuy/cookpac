@@ -50,6 +50,21 @@ export class AreaController {
     }
   }
 
+  // Get all areas with pagination
+  // GET /areas?page=1&pageSize=10
+  async getAllAreas(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const result = await this.areaService.getAllAreas(page, pageSize);
+      res.json({ status: "success", data: result });
+    }
+    catch (error) {
+      console.log("Error fetching areas:", error);
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
+
   // Update area by ID
   // PUT /areas/:id
   async updateArea(req: Request, res: Response): Promise<void> {

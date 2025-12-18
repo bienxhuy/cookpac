@@ -42,8 +42,8 @@ export class RecipeRepository {
     });
   }
 
-  async findAll(): Promise<Recipe[]> {
-    return this.recipeRepository.find({
+  async findAll(page: number = 1, pageSize: number = 10): Promise<{ recipes: Recipe[]; total: number }> {
+    const [recipes, total] = await this.recipeRepository.findAndCount({
       relations: [
         'user',
         'area',
@@ -51,7 +51,10 @@ export class RecipeRepository {
         'thumbnails',
         'votes',
       ],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
+    return { recipes, total };
   }
 
   async getAllAttachments(recipeId: number): Promise<Attachment[]> {

@@ -22,8 +22,18 @@ export class AreaService {
     return this.areaRepository.findById(id);
   }
 
-  async getAllAreas(): Promise<Area[]> {
-    return this.areaRepository.findAll();
+  async getAllAreas(page: number = 1, pageSize: number = 10) {
+    const { areas, total } = await this.areaRepository.findAll(page, pageSize);
+    const totalPages = Math.ceil(total / pageSize);
+    return {
+      areas,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages,
+      },
+    };
   }
 
   async updateArea(id: number, name: string): Promise<Area | null> {

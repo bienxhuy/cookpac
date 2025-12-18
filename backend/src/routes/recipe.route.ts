@@ -155,9 +155,24 @@ recipeRouter.post('/', (req, res) => recipeController.createRecipe(req, res));
  * @swagger
  * /api/recipes:
  *   get:
- *     summary: Get all recipes
- *     description: Returns a list of all recipes with basic information
+ *     summary: Get all recipes with pagination
+ *     description: Returns a list of all recipes with basic information and pagination
  *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of recipes per page
+ *         example: 10
  *     responses:
  *       200:
  *         description: Recipes retrieved successfully
@@ -170,9 +185,29 @@ recipeRouter.post('/', (req, res) => recipeController.createRecipe(req, res));
  *                   type: string
  *                   example: success
  *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Recipe'
+ *                   type: object
+ *                   properties:
+ *                     recipes:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Recipe'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of recipes
+ *                           example: 100
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 10
  *       500:
  *         description: Internal server error
  *         content:

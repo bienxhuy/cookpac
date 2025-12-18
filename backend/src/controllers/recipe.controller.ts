@@ -130,12 +130,14 @@ export class RecipeController {
     }
   }
 
-  // Get all recipes
-  // GET /recipes
+  // Get all recipes with pagination
+  // GET /recipes?page=1&pageSize=10
   async getAllRecipes(req: Request, res: Response): Promise<void> {
     try {
-      const recipes = await this.recipeService.getAllRecipes();
-      res.json({ status: "success", data: recipes });
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const result = await this.recipeService.getAllRecipes(page, pageSize);
+      res.json({ status: "success", data: result });
     }
     catch (error) {
       console.error('Error fetching recipes:', error);

@@ -22,8 +22,18 @@ export class CategoryService {
     return this.categoryRepository.findById(id);
   }
 
-  async getAllCategories(): Promise<Category[]> {
-    return this.categoryRepository.findAll();
+  async getAllCategories(page: number = 1, pageSize: number = 10) {
+    const { categories, total } = await this.categoryRepository.findAll(page, pageSize);
+    const totalPages = Math.ceil(total / pageSize);
+    return {
+      categories,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages,
+      },
+    };
   }
 
   async updateCategory(id: number, name: string): Promise<Category | null> {

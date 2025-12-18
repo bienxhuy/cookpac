@@ -68,6 +68,71 @@ areaRouter.post('/', (req, res) => areaController.createArea(req, res));
 
 /**
  * @swagger
+ * /api/areas:
+ *   get:
+ *     summary: Get all areas with pagination
+ *     tags: [Areas]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of areas per page
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Areas retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     areas:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Area'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of areas
+ *                           example: 25
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 3
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+areaRouter.get('/', (req, res) => areaController.getAllAreas(req, res));
+
+/**
+ * @swagger
  * /api/areas/{id}:
  *   get:
  *     summary: Get area by ID

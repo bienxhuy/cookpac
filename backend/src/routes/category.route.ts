@@ -68,6 +68,71 @@ categoryRouter.post('/', (req, res) => categoryController.createCategory(req, re
 
 /**
  * @swagger
+ * /api/categories:
+ *   get:
+ *     summary: Get all categories with pagination
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of categories per page
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Category'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of categories
+ *                           example: 30
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 3
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+categoryRouter.get('/', (req, res) => categoryController.getAllCategories(req, res));
+
+/**
+ * @swagger
  * /api/categories/{id}:
  *   get:
  *     summary: Get category by ID

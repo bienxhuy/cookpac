@@ -68,6 +68,71 @@ ingredientRouter.post('/', (req, res) => ingredientController.createIngredient(r
 
 /**
  * @swagger
+ * /api/ingredients:
+ *   get:
+ *     summary: Get all ingredients with pagination
+ *     tags: [Ingredients]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of ingredients per page
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Ingredients retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     ingredients:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Ingredient'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of ingredients
+ *                           example: 150
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 15
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+ingredientRouter.get('/', (req, res) => ingredientController.getAllIngredients(req, res));
+
+/**
+ * @swagger
  * /api/ingredients/{id}:
  *   get:
  *     summary: Get ingredient by ID

@@ -22,8 +22,18 @@ export class IngredientService {
     return this.ingredientRepository.findById(id);
   }
 
-  async getAllIngredients(): Promise<Ingredient[]> {
-    return this.ingredientRepository.findAll();
+  async getAllIngredients(page: number = 1, pageSize: number = 10) {
+    const { ingredients, total } = await this.ingredientRepository.findAll(page, pageSize);
+    const totalPages = Math.ceil(total / pageSize);
+    return {
+      ingredients,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages,
+      },
+    };
   }
 
   async updateIngredient(id: number, name: string): Promise<Ingredient | null> {

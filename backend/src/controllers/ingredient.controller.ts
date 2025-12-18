@@ -47,6 +47,20 @@ export class IngredientController {
     }
   }
 
+  // Get all ingredients with pagination
+  // GET /ingredients?page=1&pageSize=10
+  async getAllIngredients(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const result = await this.ingredientService.getAllIngredients(page, pageSize);
+      res.json({ status: "success", data: result });
+    }
+    catch (error) {
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
+
   // Update ingredient by ID
   // PUT /ingredients/:id
   async updateIngredient(req: Request, res: Response): Promise<void> {

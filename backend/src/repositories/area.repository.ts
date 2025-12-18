@@ -21,8 +21,12 @@ export class AreaRepository {
     return this.repository.findOneBy({ name });
   }
 
-  async findAll(): Promise<Area[]> {
-    return this.repository.find();
+  async findAll(page: number = 1, pageSize: number = 10): Promise<{ areas: Area[]; total: number }> {
+    const [areas, total] = await this.repository.findAndCount({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    return { areas, total };
   }
 
   async update(id: number, name: string): Promise<Area | null> {

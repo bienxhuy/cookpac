@@ -141,8 +141,18 @@ export class RecipeService {
     };
   }
 
-  async getAllRecipes(): Promise<Recipe[]> {
-    return this.recipeRepository.findAll();
+  async getAllRecipes(page: number = 1, pageSize: number = 10) {
+    const { recipes, total } = await this.recipeRepository.findAll(page, pageSize);
+    const totalPages = Math.ceil(total / pageSize);
+    return {
+      recipes,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages,
+      },
+    };
   }
 
   async updateRecipe(id: number, data: {

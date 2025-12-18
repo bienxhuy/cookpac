@@ -47,6 +47,20 @@ export class CategoryController {
     }
   }
 
+  // Get all categories with pagination
+  // GET /categories?page=1&pageSize=10
+  async getAllCategories(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const result = await this.categoryService.getAllCategories(page, pageSize);
+      res.json({ status: "success", data: result });
+    }
+    catch (error) {
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
+
   // Update category by ID
   // PUT /categories/:id
   async updateCategory(req: Request, res: Response): Promise<void> {
