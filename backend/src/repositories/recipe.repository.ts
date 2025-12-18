@@ -89,6 +89,54 @@ export class RecipeRepository {
     }
   }
 
+  async filterRecipes(filters: {
+    ingredientIds?: number[];
+    categoryIds?: number[];
+    areaIds?: number[];
+    page: number;
+    pageSize: number;
+  }): Promise<{ recipes: Recipe[]; total: number }> {
+    const { ingredientIds, categoryIds, areaIds, page, pageSize } = filters;
+    const offset = (page - 1) * pageSize;
+
+    const queryBuilder = this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.user', 'user')
+      .leftJoinAndSelect('recipe.area', 'area')
+      .leftJoinAndSelect('recipe.categories', 'category')
+      .leftJoinAndSelect('recipe.thumbnails', 'thumbnail')
+      .leftJoinAndSelect('recipe.votes', 'vote');
+
+    // Filter by areas (OR logic - recipe belongs to ONE of the areas)
+    if (areaIds && areaIds.length > 0) {
+      queryBuilder.andWhere('recipe.area.id IN (:...areaIds)', { areaIds });
+    }
+
+    // Filter by categories (OR logic - recipe has at least one of the categories)
+    if (categoryIds && categoryIds.length > 0) {
+      queryBuilder.andWhere('category.id IN (:...categoryIds)', { categoryIds });
+    }
+
+    // Filter by ingredients (OR logic - recipe uses at least one of the ingredients)
+    if (ingredientIds && ingredientIds.length > 0) {
+      queryBuilder
+        .leftJoin('recipe.recipeIngredients', 'recipeIngredient')
+        .leftJoin('recipeIngredient.ingredient', 'ingredient')
+        .andWhere('ingredient.id IN (:...ingredientIds)', { ingredientIds });
+    }
+
+    // Get total count
+    const total = await queryBuilder.getCount();
+
+    // Get paginated results
+    const recipes = await queryBuilder
+      .skip(offset)
+      .take(pageSize)
+      .getMany();
+
+    return { recipes, total };
+  }
+
   async delete(id: number): Promise<boolean> {
     const result = await this.recipeRepository.delete(id);
     return result.affected !== 0;

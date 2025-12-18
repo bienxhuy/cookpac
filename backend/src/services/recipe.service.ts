@@ -272,4 +272,33 @@ export class RecipeService {
       throw new Error('Recipe not found');
     }
   }
+
+  async filterRecipes(filters: {
+    ingredientIds?: number[];
+    categoryIds?: number[];
+    areaIds?: number[];
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ recipes: Recipe[]; total: number; page: number; pageSize: number; totalPages: number }> {
+    const page = filters.page || 1;
+    const pageSize = filters.pageSize || 10;
+
+    const { recipes, total } = await this.recipeRepository.filterRecipes({
+      ingredientIds: filters.ingredientIds,
+      categoryIds: filters.categoryIds,
+      areaIds: filters.areaIds,
+      page,
+      pageSize,
+    });
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      recipes,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
+  }
 }

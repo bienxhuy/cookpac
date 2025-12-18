@@ -256,4 +256,61 @@ export class RecipeController {
       }
     }
   }
+
+  // Filter recipes
+  // GET /recipes/filter?page=1&pageSize=10&ingredientIds=1,2,3&categoryIds=1,2&areaIds=1
+  async filterRecipes(req: Request, res: Response): Promise<void> {
+    try {
+      // Console log all params
+      console.log('Filter params:', req.query);
+
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+      const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
+
+      // Parse comma-separated IDs from query parameters and filter out NaN values
+      const parsedIngredientIds = req.query.ingredientIds 
+        ? (req.query.ingredientIds as string).split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
+        : undefined;
+      const parsedCategoryIds = req.query.categoryIds 
+        ? (req.query.categoryIds as string).split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
+        : undefined;
+      const parsedAreaIds = req.query.areaIds 
+        ? (req.query.areaIds as string).split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
+        : undefined;
+
+      // If arrays are empty after filtering, set to undefined
+      const ingredientIds = parsedIngredientIds && parsedIngredientIds.length > 0 ? parsedIngredientIds : undefined;
+      const categoryIds = parsedCategoryIds && parsedCategoryIds.length > 0 ? parsedCategoryIds : undefined;
+      const areaIds = parsedAreaIds && parsedAreaIds.length > 0 ? parsedAreaIds : undefined;
+
+      const result = await this.recipeService.filterRecipes({
+        ingredientIds,
+        categoryIds,
+        areaIds,
+        page,
+        pageSize,
+      });
+
+      res.json({ 
+        status: "success", 
+        data: {
+          recipes: result.recipes,
+          pagination: {
+            page: result.page,
+            pageSize: result.pageSize,
+            total: result.total,
+            totalPages: result.totalPages,
+          }
+        }
+      });
+    }
+    catch (error) {
+      console.error('Error filtering recipes:', error);
+      if (error instanceof Error) {
+        res.status(400).json({ status: "error", message: error.message });
+      } else {
+        res.status(500).json({ status: "error", message: 'Internal server error' });
+      }
+    }
+  }
 }

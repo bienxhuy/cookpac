@@ -184,6 +184,96 @@ recipeRouter.get('/', (req, res) => recipeController.getAllRecipes(req, res));
 
 /**
  * @swagger
+ * /api/recipes/filter:
+ *   get:
+ *     summary: Filter recipes by ingredients, categories, and areas
+ *     description: Returns recipes that match the filter criteria with pagination. All filters use OR logic (recipes matching at least one of the specified IDs). Provide IDs as comma-separated values.
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of recipes per page
+ *         example: 10
+ *       - in: query
+ *         name: ingredientIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated ingredient IDs. Filter recipes that use at least one of these ingredients.
+ *         example: "1,2,3"
+ *       - in: query
+ *         name: categoryIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated category IDs. Filter recipes that belong to at least one of these categories.
+ *         example: "1,2"
+ *       - in: query
+ *         name: areaIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated area IDs. Filter recipes that belong to one of these areas.
+ *         example: "1"
+ *     responses:
+ *       200:
+ *         description: Recipes filtered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     recipes:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Recipe'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of recipes matching the filter
+ *                           example: 45
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 5
+ *       400:
+ *         description: Bad request - Invalid filter parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+recipeRouter.get('/filter', (req, res) => recipeController.filterRecipes(req, res));
+
+/**
+ * @swagger
  * /api/recipes/{id}:
  *   get:
  *     summary: Get recipe by ID
@@ -233,6 +323,95 @@ recipeRouter.get('/', (req, res) => recipeController.getAllRecipes(req, res));
  *               $ref: '#/components/schemas/Error'
  */
 recipeRouter.get('/:id', (req, res) => recipeController.getRecipe(req, res));
+
+/**
+ * @swagger
+ * /api/recipes/filter:
+ *   get:
+ *     summary: Filter recipes by ingredients, categories, and areas
+ *     description: Returns recipes that match the filter criteria with pagination. All filters use OR logic (recipes matching at least one of the specified IDs). Provide IDs as comma-separated values.
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of recipes per page
+ *         example: 10
+ *       - in: query
+ *         name: ingredientIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated ingredient IDs. Filter recipes that use at least one of these ingredients.
+ *         example: "1,2,3"
+ *       - in: query
+ *         name: categoryIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated category IDs. Filter recipes that belong to at least one of these categories.
+ *         example: "1,2"
+ *       - in: query
+ *         name: areaIds
+ *         schema:
+ *           type: string
+ *         description: Comma-separated area IDs. Filter recipes that belong to one of these areas.
+ *         example: "1"
+ *     responses:
+ *       200:
+ *         description: Recipes filtered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     recipes:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Recipe'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of recipes matching the filter
+ *                           example: 45
+ *                         totalPages:
+ *                           type: integer
+ *                           description: Total number of pages
+ *                           example: 5
+ *       400:
+ *         description: Bad request - Invalid filter parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 
 /**
  * @swagger
