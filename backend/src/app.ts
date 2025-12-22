@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
 
+import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import areaRouter from "./routes/area.route";
 import categoryRouter from "./routes/category.route";
@@ -16,9 +18,11 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 
 // Endpoints
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/areas", areaRouter);
 app.use("/api/categories", categoryRouter);
