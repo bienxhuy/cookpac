@@ -10,7 +10,7 @@ interface FoodCard1Props {
 
 const FoodCard1: React.FC<FoodCard1Props> = ({ title, author, likes, imageUrl }) => {
   return (
-    <div className="w-64 rounded-2xl border-2 border-gray-800 bg-white overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+    <div className="w-auto rounded-2xl border-2 border-gray-800 bg-white overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
       {imageUrl && (
         <div className="h-48 w-full overflow-hidden">
           <img
