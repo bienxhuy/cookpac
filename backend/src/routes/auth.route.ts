@@ -241,13 +241,7 @@ router.post("/login", authController.login);
  *               example: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Path=/api/auth/refresh; HttpOnly; SameSite=Lax
  *             description: New refresh token set as HttpOnly cookie
  *       401:
- *         description: Unauthorized - Refresh token is required
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Unauthorized - Invalid or expired refresh token
+ *         description: Unauthorized - Missing, invalid, or expired refresh token
  *         content:
  *           application/json:
  *             schema:
