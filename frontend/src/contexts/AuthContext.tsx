@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { setAccessToken as setAxiosToken } from "@/lib/axios";
+import { toast } from "sonner";
 
 import { BaseUser } from "@/types/user.type";
 import * as authService from "@/services/auth.service";
@@ -116,12 +117,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { accessToken, user } = await authService.login({ email, password });
     updateToken(accessToken);
     saveUserToStorage(user);
+    toast.success(`Welcome back, ${user.name}!`);
   };
 
   const register = async (name: string, email: string, password: string) => {
     const { accessToken, user } = await authService.register({ name, email, password });
     updateToken(accessToken);
     saveUserToStorage(user);
+    toast.success(`Account created successfully! Welcome, ${user.name}!`);
   };
 
   const logout = async () => {
@@ -130,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       updateToken(null);
       clearUserFromStorage();
+      toast.success("You have been logged out successfully");
     }
   };
 
@@ -145,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loginWithGoogle = (accessToken: string, user: BaseUser) => {
     updateToken(accessToken);
     saveUserToStorage(user);
+    toast.success(`Welcome back, ${user.name}!`);
   };
 
   // Initialize context value
