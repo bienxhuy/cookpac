@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axios";
 import { BaseUser } from "@/types/user.type";
+import { ApiResponse } from "@/types/api.type";
 
 interface LoginRequest {
   email: string;
@@ -12,13 +13,12 @@ interface RegisterRequest {
   password: string;
 }
 
-interface AuthResponse {
-  status: string;
-  data: {
-    accessToken: string;
-    user: BaseUser;
-  };
+interface AuthData {
+  accessToken: string;
+  user: BaseUser;
 }
+
+type AuthResponse = ApiResponse<AuthData>;
 
 /**
  * Register a new user
