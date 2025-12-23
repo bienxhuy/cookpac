@@ -106,7 +106,7 @@ export const AuthCard = ({ open, onOpenChange }: AuthCardProps) => {
         </DialogHeader>
 
         {isLogin ? (
-          <Form {...loginForm}>
+          <Form {...loginForm} key="login-form">
             <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-4 mt-4">
               <FormField
                 control={loginForm.control}
@@ -158,7 +158,7 @@ export const AuthCard = ({ open, onOpenChange }: AuthCardProps) => {
             </form>
           </Form>
         ) : (
-          <Form {...registerForm}>
+          <Form {...registerForm} key="register-form">
             <form onSubmit={registerForm.handleSubmit(handleRegisterSubmit)} className="space-y-4 mt-4">
               <FormField
                 control={registerForm.control}
