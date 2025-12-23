@@ -24,9 +24,7 @@ export const ComplexHeader = () => {
           Cookpae
         </p>
 
-        {isAuthenticated ? (
-          <div>Menu</div>
-        ) : (
+        {!isAuthenticated ? (
           <Button
             variant="ghost"
             size="icon"
@@ -35,6 +33,8 @@ export const ComplexHeader = () => {
           >
             <User className="size-5" />
           </Button>
+        ) : (
+          <div>Menu</div>
         )}
       </div>
 
