@@ -1,12 +1,15 @@
 // User controller
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
+import { RecipeService } from '../services/recipe.service';
 
 export class UserController {
   private userService: UserService;
+  private recipeService: RecipeService;
 
-  constructor(userService: UserService) {
+  constructor(userService: UserService, recipeService: RecipeService) {
     this.userService = userService;
+    this.recipeService = recipeService;
   }
 
   // Get user by ID
@@ -54,7 +57,7 @@ export class UserController {
         return;
       }
 
-      const result = await this.userService.getUserRecipes(userId, page, pageSize);
+      const result = await this.recipeService.getUserRecipes(userId, page, pageSize);
       res.json({ status: "success", data: result });
     }
     catch (error) {
@@ -78,7 +81,7 @@ export class UserController {
         return;
       }
 
-      const result = await this.userService.getUserVotedRecipes(userId, page, pageSize);
+      const result = await this.recipeService.getUserVotedRecipes(userId, page, pageSize);
       res.json({ status: "success", data: result });
     }
     catch (error) {
