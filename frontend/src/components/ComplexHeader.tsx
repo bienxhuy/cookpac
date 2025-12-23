@@ -1,26 +1,44 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
+import { AuthCard } from "./AuthCard";
+import { Button } from "./ui/button";
 
 export const ComplexHeader = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
   const goHome = () => {
     navigate("/");
-  }
+  };
 
   return (
     <header>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center p-4 sm:px-15 border-b border-gray-200">
         <p
-          className="scroll-m-20 text-left sm:text-3xl sm:px-10 sm:py-5 text-2xl p-3 font-extrabold tracking-tight text-dark-blue-dark cursor-pointer"
-          onClick={goHome}>
+          className="sm:text-3xl text-2xl font-extrabold tracking-tight text-dark-blue cursor-pointer"
+          onClick={goHome}
+        >
           Cookpae
         </p>
 
-        {/* Menu */}
-        <div className="sm:px-10 sm:py-5 p-3">
-          Menu
-        </div>
+        {isAuthenticated ? (
+          <div>Menu</div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAuthDialogOpen(true)}
+            className="rounded-full cursor-pointer text-dark-blue hover:bg-dark-blue-light hover:text-white"
+          >
+            <User className="h-5 w-5" />
+          </Button>
+        )}
       </div>
+
+      <AuthCard open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
-}
+};
