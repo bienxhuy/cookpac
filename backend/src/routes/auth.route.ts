@@ -82,6 +82,10 @@ const authController = new AuthController(authService);
  *                           format: email
  *                           description: User's email address
  *                           example: john.doe@example.com
+ *                         role:
+ *                           type: string
+ *                           description: User's role
+ *                           example: REGULAR_USER
  *         headers:
  *           Set-Cookie:
  *             schema:
@@ -168,6 +172,10 @@ router.post("/register", authController.register);
  *                           format: email
  *                           description: User's email address
  *                           example: john.doe@example.com
+ *                         role:
+ *                           type: string
+ *                           description: User's role
+ *                           example: REGULAR_USER
  *         headers:
  *           Set-Cookie:
  *             schema:
