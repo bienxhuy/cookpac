@@ -68,6 +68,12 @@ export class RecipeRepository {
     return { recipes, total };
   }
 
+  async countUserRecipes(userId: number): Promise<number> {
+    return this.recipeRepository.count({
+      where: { user: { id: userId } },
+    });
+  }
+
   async findUserVotedRecipes(userId: number, page: number = 1, pageSize: number = 10): Promise<{ recipes: Recipe[]; total: number }> {
     const [recipes, total] = await this.recipeRepository.findAndCount({
       relations: ['user', 'area', 'categories', 'thumbnails', 'votes'],

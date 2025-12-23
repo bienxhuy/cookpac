@@ -89,4 +89,26 @@ export class UserController {
       res.status(500).json({ status: "error", message: 'Internal server error' });
     }
   }
+
+  // Get total number of recipes created by user
+  // GET /users/:id/recipes/count
+  async getUserRecipesCount(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = parseInt(req.params.id, 10);
+
+      // Check if user exists
+      const user = await this.userService.getUserById(userId);
+      if (!user) {
+        res.status(404).json({ status: "error", message: 'User not found' });
+        return;
+      }
+
+      const count = await this.recipeService.getUserRecipesCount(userId);
+      res.json({ status: "success", data: { count } });
+    }
+    catch (error) {
+      console.error('Error fetching user recipes count:', error);
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
 }

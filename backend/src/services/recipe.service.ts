@@ -330,6 +330,10 @@ export class RecipeService {
     };
   }
 
+  async getUserRecipesCount(userId: number): Promise<number> {
+    return this.recipeRepository.countUserRecipes(userId);
+  }
+
   async getUserVotedRecipes(userId: number, page: number = 1, pageSize: number = 10) {
     const { recipes, total } = await this.recipeRepository.findUserVotedRecipes(userId, page, pageSize);
     const totalPages = Math.ceil(total / pageSize);

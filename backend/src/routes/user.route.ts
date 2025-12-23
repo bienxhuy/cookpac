@@ -152,6 +152,54 @@ userRouter.get('/:id/recipes', (req, res) => userController.getUserRecipes(req, 
 
 /**
  * @swagger
+ * /api/users/{id}/recipes/count:
+ *   get:
+ *     summary: Get total number of recipes created by user
+ *     description: Returns the total count of recipes created by the specified user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Recipe count retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     count:
+ *                       type: integer
+ *                       description: Total number of recipes created by user
+ *                       example: 25
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+userRouter.get('/:id/recipes/count', (req, res) => userController.getUserRecipesCount(req, res));
+
+/**
+ * @swagger
  * /api/users/{id}/recipes/voted:
  *   get:
  *     summary: Get all recipes voted by user
