@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Menu } from "lucide-react";
 import { AuthCard } from "./AuthCard";
+import { User, Menu, ClipboardPlus, Bell, Archive, Heart, Bolt, LogOut } from "lucide-react";
 
 import { Button } from "./ui/button";
 import {
@@ -82,7 +82,7 @@ export const ComplexHeader = () => {
                 <Menu className="size-5" />
               </SheetTrigger>
               <SheetContent side="left">
-                <SheetHeader className="gap-0">
+                <SheetHeader className="gap-0 pb-0">
                   {/* User basic info */}
                   <SheetTitle>
                     <div className="flex flex-col">
@@ -100,38 +100,44 @@ export const ComplexHeader = () => {
                     </p>
                   </SheetDescription>
                 </SheetHeader>
-                <div className="flex flex-col gap-3 p-5 pt-0 font-medium text-dark-blue-dark">
+                <div className="flex flex-col gap-5 p-5 pt-0 font-medium text-dark-blue-dark">
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => navigate('/recipes/create')}>
+                    <ClipboardPlus className="size-5 mr-3" />
                     Create Recipe
                   </p>
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => navigate('/notifications')}>
+                    <Bell className="size-5 mr-3" />
                     Notifications
                   </p>
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => navigate('/your-recipes')}>
+                    <Archive className="size-5 mr-3" />
                     Your Recipes
                   </p>
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => navigate('/favorite-recipes')}>
+                    <Heart className="size-5 mr-3" />
                     Favorite Recipes
                   </p>
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => navigate('/settings')}>
+                    <Bolt className="size-5 mr-3" />
                     Setting
                   </p>
                   <p
-                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
                     onClick={() => {
                       logout();
                       navigate('/');
                     }}>
+                    <LogOut className="size-5 mr-3" />
                     Logout
                   </p>
                 </div>
