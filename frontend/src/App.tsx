@@ -6,6 +6,7 @@ import RecipePage from './pages/RecipePage';
 import SettingPage from './pages/SettingPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import AssistantPage from './pages/AssistantPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 import { Toaster } from './components/ui/sonner';
 import { HomePageLayout } from './components/HomePageLayout';
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
           </Route>
           <Route element={<CommonLayout />}>
+            <Route path="/auth/google/callback" element={<AuthCallbackPage />} />
             <Route path="/notifications" element={<NotificationPage />} />
             <Route path="/recipes" element={<RecipePage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />

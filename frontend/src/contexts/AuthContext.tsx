@@ -17,6 +17,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  loginWithGoogle: (accessToken: string, user: BaseUser) => void;
 }
 
 // Create the AuthContext with default undefined value
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<BaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasBootstrapped = React.useRef(false);
   const USER_STORAGE_KEY = "auth_user";
 
   // Load user from localStorage
@@ -88,6 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Bootstrap auth on mount
   useEffect(() => {
+    // Prevent multiple bootstrap calls (React Strict Mode)
+    if (hasBootstrapped.current) return;
+    hasBootstrapped.current = true;
+    
     bootstrapAuth();
   }, [bootstrapAuth]);
 
@@ -136,6 +142,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = (accessToken: string, user: BaseUser) => {
+    updateToken(accessToken);
+    saveUserToStorage(user);
+  };
+
   // Initialize context value
   const value: AuthContextType = {
     accessToken,
@@ -146,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     logoutAll,
+    loginWithGoogle,
   };
 
   // Provide the auth context to children components
