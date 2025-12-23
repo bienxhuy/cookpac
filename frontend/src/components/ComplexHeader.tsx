@@ -1,18 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { User } from "lucide-react";
+import { User, Menu } from "lucide-react";
 import { AuthCard } from "./AuthCard";
+
 import { Button } from "./ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+
+import { getUserRecipesCount } from "@/services/recipe.service";
 
 export const ComplexHeader = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [userRecipesCount, setUserRecipesCount] = useState<number | null>(null);
 
+  // Fetch user recipes count on mount
+  useEffect(() => {
+    // Fetch user recipes count
+    const fetchUserRecipesCount = async () => {
+      if (user) {
+        try {
+          const response = await getUserRecipesCount(Number(user.id));
+          if (response && response.status === "success") {
+            setUserRecipesCount(response.data.count);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user recipes count:", error);
+        }
+      }
+    };
+
+    // Call the function to fetch count
+    fetchUserRecipesCount();
+  }, [user]);
+
+  // Navigate to home
   const goHome = () => {
     navigate("/");
   };
+
+  // Helper function to extract first and last initials from user name
+  const getInitials = (name: string) => {
+    const names = name.split(" ");
+    const initials = names.map((n) => n.charAt(0).toUpperCase()).join("");
+    return initials[0] + (initials[initials.length - 1] || "ER");
+  }
 
   return (
     <header>
@@ -34,7 +75,69 @@ export const ComplexHeader = () => {
             <User className="size-5" />
           </Button>
         ) : (
-          <div>Menu</div>
+          // User menu when authenticated
+          <div>
+            <Sheet>
+              <SheetTrigger>
+                <Menu className="size-5" />
+              </SheetTrigger>
+              <SheetContent side="left">
+                <SheetHeader className="gap-0">
+                  {/* User basic info */}
+                  <SheetTitle>
+                    <div className="flex flex-col">
+                      <Avatar className="w-10 h-10 mb-2 border-1 border-dark-blue-dark">
+                        <AvatarFallback>{getInitials(user?.name || "ER")}</AvatarFallback>
+                      </Avatar>
+                      <p className="font-semibold text-md text-dark-blue pl-1">{user?.name}</p>
+                    </div>
+                  </SheetTitle>
+                  <SheetDescription>
+                    <p className="text-sm text-muted-foreground pl-1">
+                      {userRecipesCount !== null ?
+                        `${userRecipesCount} recipe${userRecipesCount !== 1 ? 's' : ''}`
+                        : 'Loading...'}
+                    </p>
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="flex flex-col gap-3 p-5 pt-0 font-medium text-dark-blue-dark">
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => navigate('/recipes/create')}>
+                    Create Recipe
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => navigate('/notifications')}>
+                    Notifications
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => navigate('/your-recipes')}>
+                    Your Recipes
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => navigate('/favorite-recipes')}>
+                    Favorite Recipes
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => navigate('/settings')}>
+                    Setting
+                  </p>
+                  <p
+                    className="cursor-pointer hover:text-dark-blue-light hover:underline transition"
+                    onClick={() => {
+                      logout();
+                      navigate('/');
+                    }}>
+                    Logout
+                  </p>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         )}
       </div>
 
