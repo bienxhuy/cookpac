@@ -75,7 +75,9 @@ interface GetUserRecipesData {
 interface GetUserRecipesCountData {
   count: number;
 }
-
+interface RecipeCountByFilter {
+  total: number;
+}
 // Response types
 type CreateRecipeResponse = ApiResponse<Recipe>;
 type GetRecipesResponse = ApiResponse<GetRecipesData>;
@@ -325,4 +327,14 @@ export const getUserRecipesCount = async (
     `/api/users/${userId}/recipes/count`
   );
   return response.data;
+};
+
+export const countRecipesByFilter = async (
+  params: FilterRecipesRequest
+): Promise<number> => {
+  const response = await axiosInstance.get<ApiResponse<GetRecipesData>>(
+    "/api/recipes/filter",
+    { params }
+  );
+  return response.data.data.pagination.total;
 };

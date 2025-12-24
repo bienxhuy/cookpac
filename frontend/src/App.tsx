@@ -11,6 +11,8 @@ import { Toaster } from './components/ui/sonner';
 import { HomePageLayout } from './components/HomePageLayout';
 import { CommonLayout } from './components/CommonLayout';
 
+import AdminPage from './pages/AdminPage';
+import AdminLayout from './components/admin/AdminLayout';
 
 function App() {
   return (
@@ -31,6 +33,12 @@ function App() {
             <Route path="/assistant" element={<AssistantPage />} />
 
             <Route path="*" element={<div className="text-center py-10">404 Not Found</div>} />
+          </Route>
+
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminPage />} />
+            
+            <Route path="*" element={<div className="p-10 text-center text-2xl">Admin 404 - Page Not Found</div>} />
           </Route>
         </Routes>
       </BrowserRouter>
