@@ -1,9 +1,19 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatGroq } from "@langchain/groq";
 import { EmbeddingService } from "./embedding.service";
 import { RecipeService } from "../recipe.service";
-import { Recipe } from "../../entities/Recipe";
-import { RecipeIngredient } from "../../entities/RecipeIngredient";
+import { HumanMessage, AIMessage, BaseMessage } from "@langchain/core/messages";
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  recipeId?: number;
+}
+
+interface QueryResult {
+  answer: string;
+  recipeId?: number;
+  isNewRecipe: boolean;
+}
 
 export class RecipeQueryService {
   private llm: ChatGroq;
@@ -12,12 +22,6 @@ export class RecipeQueryService {
     private embeddingService: EmbeddingService,
     private recipeService: RecipeService
   ) {
-    // this.llm = new ChatGoogleGenerativeAI({
-    //   model: "gemini-2.0-flash",
-    //   apiKey: process.env.GOOGLE_API_KEY!,
-    //   temperature: 0.3,
-    //   maxRetries: 2,  
-    // });
     this.llm = new ChatGroq({
       model: "llama-3.1-8b-instant", 
       apiKey: process.env.GROQ_API_KEY!,
@@ -25,64 +29,208 @@ export class RecipeQueryService {
     });
   }
 
-  async query(userPrompt: string): Promise<{ answer: string; recipeId?: number }> {
-    const dbQueryPrompt = `Trích xuất thông tin tìm kiếm từ câu lệnh: "${userPrompt}". 
-    Trả về JSON object duy nhất. 
-    LƯU Ý: 
-    - "ingredients" chỉ lấy tên danh từ (ví dụ: "thịt bò", không lấy "500g thịt bò"). 
-    - "area" chỉ lấy tên vùng miền nếu có.
-    - "keyword" là tên món ăn chính.
+  async query(
+    userPrompt: string, 
+    chatHistory: ChatMessage[] = []
+  ): Promise<QueryResult> {
+    
+    // Bước 1: Phân tích ý định với context từ lịch sử chat
+    const historyContext = this.buildHistoryContext(chatHistory);
+    
+    // === PROMPT INTENT ĐÃ TỐI ƯU ===
+    const intentPrompt = `Bạn là trợ lý phân tích ý định người dùng trong app công thức nấu ăn CookPac.
 
-    Format: {"keyword": "string", "ingredients": ["string"], "area": "string"}`;
-    const dbQueryResponse = await this.llm.invoke(dbQueryPrompt);
-    let searchParams = { keyword: "", ingredients: [], area: "" };
+Lịch sử gần nhất:
+${historyContext}
+
+Yêu cầu mới: "${userPrompt}"
+
+Trả về đúng JSON (không thêm giải thích):
+{
+  "intent": "search" | "create",
+  "searchParams": {
+    "keyword": "tên món hoặc từ khóa chính",
+    "ingredients": ["nguyên liệu 1", "nguyên liệu 2"],
+    "area": "vùng miền nếu có"
+  },
+  "contextNotes": "ghi chú ngắn nếu cần (ví dụ: người dùng muốn món khác với trước)"
+}
+
+Quy tắc:
+- intent = "search" nếu người dùng hỏi cách nấu, tìm món, hướng dẫn, có công thức nào...
+- intent = "create" nếu có từ: tạo, sáng tạo, mới, biến tấu, độc đáo, món khác, khác đi, fusion...`;
+
+    const intentResponse = await this.llm.invoke(intentPrompt);
+    let intentData = { 
+      intent: "search" as "search" | "create", 
+      searchParams: { keyword: "", ingredients: [], area: "" },
+      contextNotes: ""
+    };
     
     try {
-      const cleanedJson = (dbQueryResponse.content as string)
+      const cleanedJson = (intentResponse.content as string)
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
-      searchParams = JSON.parse(cleanedJson);
+      intentData = JSON.parse(cleanedJson);
     } catch (e) {
-      console.error("JSON Parse Error, using fallback");
+      console.error("Intent parsing error, defaulting to search");
     }
-    console.log("Search Params:", searchParams);
-    console.log("User Prompt:", userPrompt);
-    const [ragDocs, dbRecipes] = await Promise.all([
+
+    console.log("Intent Analysis:", intentData);
+
+    // Bước 2: Tìm kiếm trong database
+    let dbRecipes: any[] = [];
+    
+    if (intentData.intent === "search" || intentData.searchParams.keyword) {
+      const result = await this.searchRecipesWithParams(intentData.searchParams);
       
-      this.embeddingService.searchSimilar(userPrompt, 3),
-      this.searchRecipesWithParams(searchParams)
-    ]);
+      const suggestedRecipeIds = this.getRecentlySuggestedRecipeIds(chatHistory);
+      dbRecipes = result.filter(r => !suggestedRecipeIds.includes(r.id));
+      
+      console.log(`Found ${result.length} recipes, filtered to ${dbRecipes.length} (removed recently suggested)`);
+    }
 
+    // Bước 3: RAG knowledge
+    const ragDocs = await this.embeddingService.searchSimilar(userPrompt, 3);
     const ragContext = ragDocs.map(d => d.pageContent).join("\n\n");
-    const dbContext = dbRecipes.length > 0
-      ? dbRecipes.map(r => `- ID: ${r.id}, Name: ${r.name}, Ingredients: ${r.ingredients.join(", ")}`).join("\n")
-      : "No recipes found in database.";
 
-    const finalPrompt = `
-      You are a professional chef.
-      USER REQUEST: ${userPrompt}
-      DATABASE RECIPES: ${dbContext}
-      RAG KNOWLEDGE: ${ragContext}
+    const hasDbRecipes = dbRecipes.length > 0;
+    let isNewRecipe = false;
 
-      INSTRUCTIONS:
-      - If a recipe from DATABASE RECIPES matches the user's need, use it.
-      - Mention the recipe name clearly.
-      - Provide: 1. Name, 2. Ingredients, 3. Steps, 4. Tips.
-      - Answer in Vietnamese.
-    `;
-    console.log("Final Prompt:", finalPrompt);
-    const answer = await this.llm.invoke(finalPrompt);
+    // Bước 4: Tạo prompt dựa trên intent
+    let finalPrompt = "";
+
+    if (intentData.intent === "search" && hasDbRecipes) {
+      // === PROMPT CHO CÔNG THỨC CÓ SẴN (TỐI ƯU) ===
+      isNewRecipe = false;
+      
+      const dbContext = dbRecipes
+        .slice(0, 3) // chỉ lấy top 3 để prompt ngắn
+        .map(r => `- ID: ${r.id} | Tên: ${r.name} | Nguyên liệu chính: ${r.ingredients.slice(0, 6).join(", ")}`)
+        .join("\n");
+
+      finalPrompt = `Bạn là trợ lý nấu ăn thân thiện của CookPac.
+
+Yêu cầu: ${userPrompt}
+${intentData.contextNotes ? `Ngữ cảnh: ${intentData.contextNotes}` : ''}
+
+Công thức phù hợp từ cộng đồng (ưu tiên dùng chính xác tên món):
+${dbContext}
+
+Kiến thức bổ sung:
+${ragContext}
+
+Hướng dẫn trả lời:
+- Giới thiệu món phù hợp nhất từ CookPac (nhắc đúng tên món để hiển thị card)
+- Giải thích ngắn tại sao món này hợp
+- Liệt kê 4-5 nguyên liệu chính
+- Tóm tắt 3 bước quan trọng
+- Đưa 1-2 mẹo hay
+Trả lời tiếng Việt, nhiệt tình, ngắn gọn hấp dẫn.`;
+
+    } else {
+      // === PROMPT CHO CÔNG THỨC MỚI (TỐI ƯU) ===
+      isNewRecipe = true;
+      
+      const recentRecipes = this.getRecentlySuggestedRecipes(chatHistory);
+      const avoidText = recentRecipes.length > 0 
+        ? `TRÁNH HOÀN TOÀN các món đã gợi ý: ${recentRecipes.join(", ")}` 
+        : "";
+
+      finalPrompt = `Bạn là đầu bếp sáng tạo của CookPac.
+
+Yêu cầu: ${userPrompt}
+${intentData.contextNotes ? `Ngữ cảnh: ${intentData.contextNotes}` : ''}
+${avoidText}
+
+Tham khảo (không copy trực tiếp):
+${ragContext}
+${hasDbRecipes ? `Có món tương tự trong cộng đồng: ${dbRecipes.map(r => r.name).join(", ")}` : ""}
+
+Tạo công thức MỚI và ĐỘC ĐÁO:
+1. Tên món thật hấp dẫn, mới lạ
+2. Nguyên liệu đầy đủ + số lượng cụ thể (VD: 300g gà, 2 quả trứng...)
+3. Các bước thực hiện chi tiết, đánh số rõ ràng
+4. Nêu điểm đặc biệt của món
+5. 1-2 mẹo để món ngon hơn
+
+Trả lời tiếng Việt, chi tiết, cuốn hút và dễ làm theo.`;
+    }
+
+    console.log("\n=== QUERY STRATEGY ===");
+    console.log("Intent:", intentData.intent);
+    console.log("Has DB Recipes:", hasDbRecipes);
+    console.log("Is New Recipe:", isNewRecipe);
+    
+    // Bước 5: Gọi LLM với chat history
+    const messages: BaseMessage[] = [
+      ...this.convertHistoryToMessages(chatHistory),
+      new HumanMessage(finalPrompt)
+    ];
+
+    const answer = await this.llm.invoke(messages);
     const answerText = answer.content as string;
-    console.log("LLM Answer:", answerText);
-    const matchedRecipe = dbRecipes.find(r =>
-      answerText.toLowerCase().includes(r.name.toLowerCase())
-    );
+
+    // Bước 6: Match recipe nếu không phải công thức mới
+    let recipeId: number | undefined;
+    
+    if (!isNewRecipe && hasDbRecipes) {
+      const matchedRecipe = dbRecipes.find(r =>
+        answerText.toLowerCase().includes(r.name.toLowerCase())
+      );
+      recipeId = matchedRecipe?.id;
+      console.log("Matched Recipe ID:", recipeId);
+    }
 
     return {
       answer: answerText,
-      recipeId: matchedRecipe?.id,
+      recipeId,
+      isNewRecipe, 
     };
+  }
+
+  // === Các helper giữ nguyên hoàn toàn ===
+  private buildHistoryContext(chatHistory: ChatMessage[]): string {
+    if (chatHistory.length === 0) return "Đây là đầu cuộc hội thoại.";
+    
+    const recent = chatHistory.slice(-4);
+    return recent
+      .map(msg => {
+        const prefix = msg.role === 'user' ? 'NGƯỜI DÙNG' : 'BẠN ĐÃ TRẢ LỜI';
+        const recipeNote = msg.recipeId ? ` [Đã gợi ý món ID: ${msg.recipeId}]` : '';
+        return `${prefix}: ${msg.content}${recipeNote}`;
+      })
+      .join("\n");
+  }
+
+  private getRecentlySuggestedRecipeIds(chatHistory: ChatMessage[]): number[] {
+    return chatHistory
+      .filter(msg => msg.role === 'assistant' && msg.recipeId)
+      .map(msg => msg.recipeId!)
+      .slice(-3);
+  }
+
+  private getRecentlySuggestedRecipes(chatHistory: ChatMessage[]): string[] {
+    const recipeNames: string[] = [];
+    
+    chatHistory
+      .filter(msg => msg.role === 'assistant')
+      .slice(-2)
+      .forEach(msg => {
+        const match = msg.content.match(/\*\*([^*]+)\*\*/);
+        if (match) recipeNames.push(match[1]);
+      });
+    
+    return recipeNames;
+  }
+
+  private convertHistoryToMessages(chatHistory: ChatMessage[]): BaseMessage[] {
+    return chatHistory.slice(-6).map(msg =>
+      msg.role === 'user' 
+        ? new HumanMessage(msg.content)
+        : new AIMessage(msg.content)
+    );
   }
 
   private async searchRecipesWithParams(params: {
@@ -95,9 +243,11 @@ export class RecipeQueryService {
       ingredientNames: params.ingredients,
       areaName: params.area,
       page: 1,
-      pageSize: 2
+      pageSize: 5
     });
-    console.log(`Found ${result.total} recipes from DB search, ${result}`);
+    
+    console.log(`Found ${result.total} recipes from DB`);
+    
     return result.recipes.map(r => ({
       id: r.id,
       name: r.name,

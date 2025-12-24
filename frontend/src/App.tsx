@@ -23,10 +23,8 @@ function App() {
 
           <Route element={<CommonLayout />}>
             <Route path="/bot" element={<BotPage />} />
-            <Route path="/recipes" element={<RecipePage initialTab="favorite" />} />
-            <Route path="/recipes/my" element={<RecipePage initialTab="your_recipe" />} />
-            <Route path="/notifications" element={<RecipePage initialTab="notification" />} />
-            <Route path="/ingredients" element={<RecipePage initialTab="ingredient" />} />
+            <Route path="/favorite-recipes" element={<RecipePage initialTab="favorite" />} />
+            <Route path="your-recipes" element={<RecipePage initialTab="your_recipe" />} />
 
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/settings" element={<SettingPage />} />
