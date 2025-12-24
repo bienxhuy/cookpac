@@ -9,6 +9,8 @@ import { AreaService } from '../services/area.service';
 import { CategoryService } from '../services/category.service';
 import { IngredientService } from '../services/ingredient.service';
 import { VoteService } from '../services/vote.service';
+import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 
 import { RecipeRepository } from '../repositories/recipe.repository';
 import { UserRepository } from '../repositories/user.repository';
@@ -16,8 +18,11 @@ import { AreaRepository } from '../repositories/area.repository';
 import { CategoryRepository } from '../repositories/category.repository';
 import { IngredientRepository } from '../repositories/ingredient.repository';
 import { VoteRepository } from '../repositories/vote.repository';
+import { RefreshTokenRepository } from '../repositories/refreshToken.repository';
+import { NotificationRepository } from '../repositories/notification.repository';
 
 import { AppDataSource } from '../data-source';
+import { authenticate } from '../middlewares/auth.middleware';
 
 // Initialize repositories
 const recipeRepository = new RecipeRepository(AppDataSource);
@@ -26,6 +31,8 @@ const areaRepository = new AreaRepository(AppDataSource);
 const categoryRepository = new CategoryRepository(AppDataSource);
 const ingredientRepository = new IngredientRepository(AppDataSource);
 const voteRepository = new VoteRepository(AppDataSource);
+const refreshTokenRepository = new RefreshTokenRepository(AppDataSource);
+const notificationRepository = new NotificationRepository(AppDataSource);
 
 // Initialize services
 const userService = new UserService(userRepository);
@@ -33,13 +40,14 @@ const areaService = new AreaService(areaRepository);
 const categoryService = new CategoryService(categoryRepository);
 const ingredientService = new IngredientService(ingredientRepository);
 const voteService = new VoteService(voteRepository, userService);
-const recipeService = new RecipeService(recipeRepository, userService, areaService, categoryService, ingredientService, voteService);
+const notificationService = new NotificationService(notificationRepository, userService);
+const recipeService = new RecipeService(recipeRepository, userService, areaService, categoryService, ingredientService, voteService, notificationService);
+const authService = new AuthService(userRepository, refreshTokenRepository);
 
 // Initialize controller
 const userController = new UserController(userService, recipeService);
 
 // Define routes
-// TODO: Add authentication middleware 
 const userRouter = Router();
 
 /**
@@ -304,6 +312,6 @@ userRouter.get('/:id/recipes/voted', (req, res) => userController.getUserVotedRe
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.delete('/:id', (req, res) => userController.deleteUser(req, res));
+userRouter.delete('/:id', authenticate(authService), (req, res) => userController.deleteUser(req, res));
 
 export default userRouter;

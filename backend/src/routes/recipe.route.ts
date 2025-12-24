@@ -16,6 +16,9 @@ import { IngredientRepository } from '../repositories/ingredient.repository';
 import { VoteRepository } from '../repositories/vote.repository';
 import { NotificationRepository } from '../repositories/notification.repository';
 import { AppDataSource } from '../data-source';
+import { authenticate } from '../middlewares/auth.middleware';
+import { AuthService } from '../services/auth.service';
+import { RefreshTokenRepository } from '../repositories/refreshToken.repository';
 
 // Initialize repositories
 const recipeRepository = new RecipeRepository(AppDataSource);
@@ -25,6 +28,7 @@ const categoryRepository = new CategoryRepository(AppDataSource);
 const ingredientRepository = new IngredientRepository(AppDataSource);
 const voteRepository = new VoteRepository(AppDataSource);
 const notificationRepository = new NotificationRepository(AppDataSource);
+const refreshTokenRepository = new RefreshTokenRepository(AppDataSource);
 
 // Initialize services
 const userService = new UserService(userRepository);
@@ -33,6 +37,7 @@ const categoryService = new CategoryService(categoryRepository);
 const ingredientService = new IngredientService(ingredientRepository);
 const voteService = new VoteService(voteRepository, userService);
 const notificationService = new NotificationService(notificationRepository, userService);
+const authService = new AuthService(userRepository, refreshTokenRepository);
 const recipeService = new RecipeService(recipeRepository, userService, areaService, categoryService, ingredientService, voteService, notificationService);
 
 // Initialize controller
@@ -157,7 +162,7 @@ const recipeRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-recipeRouter.post('/', (req, res) => recipeController.createRecipe(req, res));
+recipeRouter.post('/', authenticate(authService), (req, res) => recipeController.createRecipe(req, res));
 
 /**
  * @swagger
@@ -486,7 +491,7 @@ recipeRouter.get('/:id', (req, res) => recipeController.getRecipe(req, res));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-recipeRouter.put('/:id', (req, res) => recipeController.updateRecipe(req, res));
+recipeRouter.put('/:id', authenticate(authService), (req, res) => recipeController.updateRecipe(req, res));
 
 /**
  * @swagger
@@ -519,7 +524,7 @@ recipeRouter.put('/:id', (req, res) => recipeController.updateRecipe(req, res));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-recipeRouter.delete('/:id', (req, res) => recipeController.deleteRecipe(req, res));
+recipeRouter.delete('/:id', authenticate(authService), (req, res) => recipeController.deleteRecipe(req, res));
 
 /**
  * @swagger
@@ -576,7 +581,7 @@ recipeRouter.delete('/:id', (req, res) => recipeController.deleteRecipe(req, res
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-recipeRouter.post('/:id/vote', (req, res) => recipeController.voteRecipe(req, res));
+recipeRouter.post('/:id/vote', authenticate(authService), (req, res) => recipeController.voteRecipe(req, res));
 
 /**
  * @swagger
@@ -627,6 +632,6 @@ recipeRouter.post('/:id/vote', (req, res) => recipeController.voteRecipe(req, re
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-recipeRouter.delete('/:id/unvote', (req, res) => recipeController.unvoteRecipe(req, res));
+recipeRouter.delete('/:id/unvote', authenticate(authService), (req, res) => recipeController.unvoteRecipe(req, res));
 
 export default recipeRouter;
