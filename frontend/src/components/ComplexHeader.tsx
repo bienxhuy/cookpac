@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthCard } from "./AuthCard";
+import { NotificationBell } from "./NotificationBell";
 import { User, Menu, ClipboardPlus, Bell, Archive, Heart, Bolt, LogOut } from "lucide-react";
 
 import { Button } from "./ui/button";
@@ -76,7 +77,8 @@ export const ComplexHeader = () => {
           </Button>
         ) : (
           // User menu when authenticated
-          <div>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
             <Sheet>
               <SheetTrigger>
                 <Menu className="size-5" />
