@@ -94,12 +94,10 @@ export const ComplexHeader = () => {
                       <p className="font-semibold text-md text-dark-blue pl-1">{user?.name}</p>
                     </div>
                   </SheetTitle>
-                  <SheetDescription>
-                    <p className="text-sm text-muted-foreground pl-1">
-                      {userRecipesCount !== null ?
-                        `${userRecipesCount} recipe${userRecipesCount !== 1 ? 's' : ''}`
-                        : 'Loading...'}
-                    </p>
+                  <SheetDescription className="text-sm text-muted-foreground pl-1">
+                    {userRecipesCount !== null ?
+                      `${userRecipesCount} recipe${userRecipesCount !== 1 ? 's' : ''}`
+                      : 'Loading...'}
                   </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col gap-5 p-5 pt-0 font-medium text-dark-blue-dark">
@@ -108,12 +106,6 @@ export const ComplexHeader = () => {
                     onClick={() => navigate('/recipes/create')}>
                     <ClipboardPlus className="size-5 mr-3" />
                     Create Recipe
-                  </p>
-                  <p
-                    className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
-                    onClick={() => navigate('/notifications')}>
-                    <Bell className="size-5 mr-3" />
-                    Notifications
                   </p>
                   <p
                     className="flex flex-row items-center cursor-pointer hover:text-dark-blue-light transition"
