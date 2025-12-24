@@ -190,8 +190,8 @@ export class RecipeRepository {
       .leftJoinAndSelect('recipe.area', 'area')
       .leftJoinAndSelect('recipe.categories', 'category')
       .leftJoinAndSelect('recipe.thumbnails', 'thumbnail')
-      .leftJoinAndSelect('recipe.recipeIngredients', 'ri') // Cần thêm cái này
-      .leftJoinAndSelect('ri.ingredient', 'ingredient'); // Và cái này để lấy name
+      .leftJoinAndSelect('recipe.recipeIngredients', 'ri')
+      .leftJoinAndSelect('ri.ingredient', 'ingredient');
 
     if (keyword) {
       queryBuilder.andWhere('(recipe.name ILIKE :kw OR recipe.description ILIKE :kw)', { kw: `%${keyword}%` });
@@ -202,7 +202,6 @@ export class RecipeRepository {
     }
 
     if (ingredientNames && ingredientNames.length > 0) {
-      // Dùng ILIKE để tìm kiếm tương đối tên nguyên liệu cho linh hoạt
       queryBuilder.andWhere('ingredient.name IN (:...names)', { names: ingredientNames });
     }
 
