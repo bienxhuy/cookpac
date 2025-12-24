@@ -421,4 +421,37 @@ export class RecipeService {
       pageSize
     });
   }
+
+  /**
+   * Get top voted recipes today
+   * @param limit - Number of recipes to return (default: 5)
+   * @returns List of top voted recipes
+   */
+  async getTopVotedToday(limit: number = 5): Promise<Recipe[]> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await this.recipeRepository.getTopVotedRecipes(startOfDay, endOfDay, limit);
+  }
+
+  /**
+   * Get newest recipes
+   * @param limit - Number of recipes to return (default: 5)
+   * @returns List of newest recipes
+   */
+  async getNewRecipes(limit: number = 5): Promise<Recipe[]> {
+    return await this.recipeRepository.getNewRecipes(limit);
+  }
+
+  /**
+   * Get random recipes
+   * @param limit - Number of recipes to return (default: 5)
+   * @returns List of random recipes
+   */
+  async getRandomRecipes(limit: number = 5): Promise<Recipe[]> {
+    return await this.recipeRepository.getRandomRecipes(limit);
+  }
 }

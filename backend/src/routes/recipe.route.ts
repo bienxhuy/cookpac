@@ -232,6 +232,111 @@ recipeRouter.get('/', (req, res) => recipeController.getAllRecipes(req, res));
 
 /**
  * @swagger
+ * /api/recipes/top-voted:
+ *   get:
+ *     summary: Get top voted recipes today
+ *     description: Returns the most voted recipes from today, no pagination
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Number of recipes to return
+ *         example: 5
+ *     responses:
+ *       200:
+ *         description: Top voted recipes retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Recipe'
+ *       500:
+ *         description: Internal server error
+ */
+recipeRouter.get('/top-voted', (req, res) => recipeController.getTopVotedToday(req, res));
+
+/**
+ * @swagger
+ * /api/recipes/new:
+ *   get:
+ *     summary: Get newest recipes
+ *     description: Returns the most recently created recipes, no pagination
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Number of recipes to return
+ *         example: 5
+ *     responses:
+ *       200:
+ *         description: New recipes retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Recipe'
+ *       500:
+ *         description: Internal server error
+ */
+recipeRouter.get('/new', (req, res) => recipeController.getNewRecipes(req, res));
+
+/**
+ * @swagger
+ * /api/recipes/random:
+ *   get:
+ *     summary: Get random recipes
+ *     description: Returns random recipes for discovery, no pagination
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Number of recipes to return
+ *         example: 5
+ *     responses:
+ *       200:
+ *         description: Random recipes retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Recipe'
+ *       500:
+ *         description: Internal server error
+ */
+recipeRouter.get('/random', (req, res) => recipeController.getRandomRecipes(req, res));
+
+/**
+ * @swagger
  * /api/recipes/filter:
  *   get:
  *     summary: Filter recipes by ingredients, categories, and areas

@@ -212,4 +212,65 @@ export class RecipeRepository {
 
     return { recipes, total };
   }
+
+  /**
+   * Get top voted recipes within a date range
+   * @param startDate - Start date
+   * @param endDate - End date
+   * @param limit - Number of recipes to return
+   * @returns List of recipes sorted by vote count
+   */
+  async getTopVotedRecipes(startDate: Date, endDate: Date, limit: number): Promise<Recipe[]> {
+    return this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.user', 'user')
+      .leftJoinAndSelect('recipe.area', 'area')
+      .leftJoinAndSelect('recipe.categories', 'category')
+      .leftJoinAndSelect('recipe.thumbnails', 'thumbnail')
+      .leftJoinAndSelect('recipe.votes', 'vote')
+      .leftJoinAndSelect('vote.user', 'voteUser')
+      .where('vote.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('recipe.id')
+      .addGroupBy('user.id')
+      .addGroupBy('area.id')
+      .addGroupBy('category.id')
+      .addGroupBy('thumbnail.id')
+      .addGroupBy('vote.id')
+      .addGroupBy('voteUser.id')
+      .orderBy('COUNT(vote.id)', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
+  /**
+   * Get newest recipes
+   * @param limit - Number of recipes to return
+   * @returns List of newest recipes
+   */
+  async getNewRecipes(limit: number): Promise<Recipe[]> {
+    return this.recipeRepository.find({
+      relations: ['user', 'area', 'categories', 'thumbnails', 'votes', 'votes.user'],
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
+  }
+
+  /**
+   * Get random recipes
+   * @param limit - Number of recipes to return
+   * @returns List of random recipes
+   */
+  async getRandomRecipes(limit: number): Promise<Recipe[]> {
+    return this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.user', 'user')
+      .leftJoinAndSelect('recipe.area', 'area')
+      .leftJoinAndSelect('recipe.categories', 'category')
+      .leftJoinAndSelect('recipe.thumbnails', 'thumbnail')
+      .leftJoinAndSelect('recipe.votes', 'vote')
+      .leftJoinAndSelect('vote.user', 'voteUser')
+      .orderBy('RANDOM()')
+      .limit(limit)
+      .getMany();
+  }
 }

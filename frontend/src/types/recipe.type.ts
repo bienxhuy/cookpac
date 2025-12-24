@@ -5,6 +5,12 @@ import { Attachment } from './attachment.type';
 import { Step } from './step.type';
 import { Ingredient } from './ingredient.type';
 
+export interface Vote {
+  id: number;
+  user: BaseUser;
+  createdAt: string;
+}
+
 export interface RecipeIngredient {
   id: number;
   order: number;
@@ -23,7 +29,8 @@ export interface Recipe {
   thumbnails: Attachment[];
   steps: Step[];
   recipeIngredients: RecipeIngredient[];
-  votedUserIds: number[];
+  votes?: Vote[];
+  votedUserIds?: number[];
   createdAt: string;
   updatedAt: string;
 }

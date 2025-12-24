@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
 interface FoodCard2Props {
@@ -7,11 +8,23 @@ interface FoodCard2Props {
   likes: number;
   description?: string;
   imageUrl?: string;
+  recipeId?: number;
 }
 
-const FoodCard2: React.FC<FoodCard2Props> = ({ title, author, likes, description, imageUrl }) => {
+const FoodCard2: React.FC<FoodCard2Props> = ({ title, author, likes, description, imageUrl, recipeId }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (recipeId) {
+      navigate(`/recipes/${recipeId}`);
+    }
+  };
+
   return (
-    <div className="w-auto h-auto rounded-2xl border-2 border-gray-800 bg-white overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+    <div 
+      className="w-auto h-auto rounded-2xl border-2 border-gray-800 bg-white overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="flex gap-4 p-3">
         {imageUrl && (
           <div className="w-20 h-20 rounded-lg shrink-0 overflow-hidden">

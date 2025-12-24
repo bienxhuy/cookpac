@@ -367,3 +367,48 @@ export const countRecipesByFilter = async (
   );
   return response.data.data.pagination.total;
 };
+
+/**
+ * Get top voted recipes today
+ * @param limit - Number of recipes to return (default: 5)
+ * @returns Promise with top voted recipes
+ */
+export const getTopVotedToday = async (
+  limit: number = 5
+): Promise<ApiResponse<Recipe[]>> => {
+  const response = await axiosInstance.get<ApiResponse<Recipe[]>>(
+    "/api/recipes/top-voted",
+    { params: { limit } }
+  );
+  return response.data;
+};
+
+/**
+ * Get newest recipes
+ * @param limit - Number of recipes to return (default: 5)
+ * @returns Promise with newest recipes
+ */
+export const getNewRecipes = async (
+  limit: number = 5
+): Promise<ApiResponse<Recipe[]>> => {
+  const response = await axiosInstance.get<ApiResponse<Recipe[]>>(
+    "/api/recipes/new",
+    { params: { limit } }
+  );
+  return response.data;
+};
+
+/**
+ * Get random recipes
+ * @param limit - Number of recipes to return (default: 5)
+ * @returns Promise with random recipes
+ */
+export const getRandomRecipes = async (
+  limit: number = 5
+): Promise<ApiResponse<Recipe[]>> => {
+  const response = await axiosInstance.get<ApiResponse<Recipe[]>>(
+    "/api/recipes/random",
+    { params: { limit } }
+  );
+  return response.data;
+};

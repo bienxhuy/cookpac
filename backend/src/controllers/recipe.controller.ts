@@ -368,4 +368,46 @@ export class RecipeController {
       }
     }
   }
+
+  // Get top voted recipes today
+  // GET /recipes/top-voted?limit=5
+  async getTopVotedToday(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const recipes = await this.recipeService.getTopVotedToday(limit);
+      res.json({ status: "success", data: recipes });
+    }
+    catch (error) {
+      console.error('Error fetching top voted recipes:', error);
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
+
+  // Get new recipes
+  // GET /recipes/new?limit=5
+  async getNewRecipes(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const recipes = await this.recipeService.getNewRecipes(limit);
+      res.json({ status: "success", data: recipes });
+    }
+    catch (error) {
+      console.error('Error fetching new recipes:', error);
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
+
+  // Get random recipes
+  // GET /recipes/random?limit=5
+  async getRandomRecipes(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const recipes = await this.recipeService.getRandomRecipes(limit);
+      res.json({ status: "success", data: recipes });
+    }
+    catch (error) {
+      console.error('Error fetching random recipes:', error);
+      res.status(500).json({ status: "error", message: 'Internal server error' });
+    }
+  }
 }
